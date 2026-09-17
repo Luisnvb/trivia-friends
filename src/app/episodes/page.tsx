@@ -2,13 +2,14 @@ import Link from "next/link";
 import { listEpisodesBySeason } from "@/lib/dal/episodes";
 import { MIN_SEASON, MAX_SEASON, EPISODES_PER_SEASON } from "@/lib/reference/episodes";
 import { EpisodeExtraNotes } from "@/components/episode-extra-notes";
+import { SeasonSelect } from "@/components/season-select";
 
 /**
  * Muestra el contenido de la tabla `episode` (sinopsis, personajes,
  * momentos y frases memorables), agrupado por temporada. Server Component
  * que lee `searchParams` y llama al DAL directamente, igual que
- * `/questions` — sin estado cliente para el filtro de temporada (select +
- * GET nativo de Next.js).
+ * `/questions` — GET nativo de Next.js, con el envío del formulario
+ * disparado por el propio `<select>` (`SeasonSelect`, único trozo cliente).
  */
 
 const SEASONS = Array.from(
@@ -58,25 +59,8 @@ export default async function EpisodesPage({
           <label htmlFor="season" className="mb-1 block text-xs font-medium text-stone-600">
             Temporada
           </label>
-          <select
-            name="season"
-            id="season"
-            defaultValue={season}
-            className="block w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
-          >
-            {SEASONS.map((s) => (
-              <option key={s} value={s}>
-                Temporada {s}
-              </option>
-            ))}
-          </select>
+          <SeasonSelect seasons={SEASONS} defaultValue={season} />
         </div>
-        <button
-          type="submit"
-          className="inline-flex items-center justify-center rounded-md bg-amber-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-700"
-        >
-          Ver
-        </button>
       </form>
 
       <p className="text-sm text-stone-500">
