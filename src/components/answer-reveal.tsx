@@ -28,17 +28,13 @@ export function AnswerReveal({ options }: { options: Option[] }) {
       </button>
       {visible && (
         <ul className="mt-2 space-y-1 text-sm">
-          {options.map((opt) =>
-            opt.isCorrect ? (
+          {options
+            .filter((opt) => opt.isCorrect)
+            .map((opt) => (
               <li key={opt.id} className="font-semibold text-emerald-700">
                 <RestrictedMarkdown text={opt.text} /> ✓
               </li>
-            ) : (
-              <li key={opt.id} className="text-stone-500">
-                <RestrictedMarkdown text={opt.text} />
-              </li>
-            )
-          )}
+            ))}
         </ul>
       )}
     </div>
