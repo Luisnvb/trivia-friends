@@ -1,9 +1,5 @@
 import Link from "next/link";
 import { MIN_SEASON, MAX_SEASON } from "@/lib/reference/episodes";
-import {
-  QUESTION_DIFFICULTY_VALUES,
-  QUESTION_DIFFICULTY_LABELS,
-} from "@/lib/reference/difficulty";
 
 /**
  * Modo de juego: pantalla de configuración de la partida (nº de preguntas,
@@ -68,20 +64,6 @@ export default function PlaySetupPage() {
             {SEASONS.map((s) => (
               <option key={s} value={s}>
                 Temporada {s}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label htmlFor="difficulty" className="mb-1 block text-sm font-medium text-stone-700">
-            Dificultad
-          </label>
-          <select name="difficulty" id="difficulty" defaultValue="" className={SELECT_CLASS}>
-            <option value="">Todas</option>
-            {QUESTION_DIFFICULTY_VALUES.map((d) => (
-              <option key={d} value={d}>
-                {QUESTION_DIFFICULTY_LABELS[d]}
               </option>
             ))}
           </select>

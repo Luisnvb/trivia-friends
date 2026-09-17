@@ -18,6 +18,7 @@ import {
   QUESTION_DIFFICULTY_VALUES,
 } from "@/lib/reference/difficulty";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { KeyPromptDialog } from "@/components/key-prompt-dialog";
 
 /**
  * 001-create-question / 003-edit-question: mismo formulario para creación y
@@ -79,6 +80,8 @@ export function QuestionForm({ formMode, questionId, initialValues }: QuestionFo
   const [errors, setErrors] = useState<ActionErrors>({});
   const [isPending, startTransition] = useTransition();
   const [pendingSingleSwitch, setPendingSingleSwitch] = useState(false);
+  const [pendingInput, setPendingInput] = useState<QuestionInput | null>(null);
+  const [keyError, setKeyError] = useState<string | null>(null);
 
   const episodeChoices = season === "" ? [] : Array.from(
     { length: EPISODES_PER_SEASON[season] ?? 0 },
@@ -159,15 +162,32 @@ export function QuestionForm({ formMode, questionId, initialValues }: QuestionFo
       })),
     } as QuestionInput;
 
+    setKeyError(null);
+    setPendingInput(input);
+  }
+
+  function handleKeyConfirm(key: string) {
+    if (!pendingInput) return;
+    setKeyError(null);
     startTransition(async () => {
       const result =
         formMode === "edit"
-          ? await updateQuestionAction(questionId, input)
-          : await createQuestionAction(input);
+          ? await updateQuestionAction(questionId, pendingInput, key)
+          : await createQuestionAction(pendingInput, key);
       if (!result.success) {
+        if (result.errors._key?.[0]) {
+          setKeyError(result.errors._key[0]);
+          return;
+        }
         setErrors(result.errors);
+        setPendingInput(null);
       }
     });
+  }
+
+  function handleKeyCancel() {
+    setPendingInput(null);
+    setKeyError(null);
   }
 
   return (
@@ -367,13 +387,23 @@ export function QuestionForm({ formMode, questionId, initialValues }: QuestionFo
         </div>
       </div>
 
-      <button
-        type="submit"
-        disabled={isPending}
-        className="inline-flex items-center justify-center rounded-md bg-amber-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        {isPending ? "Guardando..." : formMode === "edit" ? "Guardar cambios" : "Guardar pregunta"}
-      </button>
+      <div>
+        <button
+          type="submit"
+          disabled={isPending}
+          className="inline-flex items-center justify-center rounded-md bg-amber-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {formMode === "edit" ? "Guardar cambios" : "Guardar pregunta"}
+        </button>
+        {pendingInput && (
+          <KeyPromptDialog
+            error={keyError}
+            isPending={isPending}
+            onConfirm={handleKeyConfirm}
+            onCancel={handleKeyCancel}
+          />
+        )}
+      </div>
     </form>
   );
 }

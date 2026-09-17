@@ -62,6 +62,23 @@ export async function getEpisodeTitlesFor(
   return new Map(rows.map((r) => [`${r.season}-${r.episode}`, r.titleEs]));
 }
 
+/** Actualiza las notas/datos adicionales de un episodio existente. */
+export async function updateEpisodeExtraNotes(
+  id: number,
+  extraNotes: string | null
+): Promise<Episode> {
+  const [row] = await db
+    .update(episode)
+    .set({ extraNotes, updatedAt: new Date() })
+    .where(eq(episode.id, id))
+    .returning();
+
+  if (!row) {
+    throw new Error(`No existe el episodio con id ${id}.`);
+  }
+  return row;
+}
+
 /** Crea el episodio si no existe (por season+episode) o lo reemplaza si ya existe. */
 export async function upsertEpisode(input: EpisodeInput): Promise<Episode> {
   const [row] = await db

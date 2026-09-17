@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { listEpisodesBySeason } from "@/lib/dal/episodes";
 import { MIN_SEASON, MAX_SEASON, EPISODES_PER_SEASON } from "@/lib/reference/episodes";
+import { EpisodeExtraNotes } from "@/components/episode-extra-notes";
 
 /**
  * Muestra el contenido de la tabla `episode` (sinopsis, personajes,
@@ -152,6 +153,8 @@ export default async function EpisodesPage({
                   </ul>
                 </div>
               )}
+
+              <EpisodeExtraNotes episodeId={ep.id} initialExtraNotes={ep.extraNotes} />
             </article>
           ))}
         </div>

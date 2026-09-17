@@ -12,6 +12,7 @@ const NAV_LINKS = [
   { href: "/play", label: "Jugar" },
   { href: "/questions", label: "Preguntas" },
   { href: "/episodes", label: "Episodios" },
+  { href: "/series-info", label: "Más sobre la serie" },
 ];
 
 export default function RootLayout({

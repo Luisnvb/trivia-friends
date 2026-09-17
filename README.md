@@ -141,5 +141,38 @@ numerada — se añadió directamente sobre el modelo base (ver más abajo).
     preguntas, formulario de creación/edición, `/episodes` y el flujo
     completo de `/play`.
 
-Despliegue previsto en Vercel; configurar `DATABASE_URL` como variable de
-entorno del proyecto en Vercel (no versionar `.env.local`).
+- ✅ **Clave de edición** (fuera de las specs numeradas): variable de entorno
+  `EDIT_PASSWORD` (ver `.env.local.example`), verificada en el servidor
+  (`src/lib/auth/edit-key.ts`) en todas las Server Actions que crean o
+  editan contenido: `createQuestionAction`/`updateQuestionAction`,
+  `updateEpisodeExtraNotesAction`, `createSeriesFactAction`/
+  `updateSeriesFactAction`. Al pulsar "Guardar" en cualquiera de esos
+  formularios se abre `key-prompt-dialog.tsx` (mismo estilo sin
+  `window.prompt` que `confirm-dialog.tsx`) pidiendo la clave; si es
+  incorrecta se muestra el error y no se persiste nada, el formulario
+  conserva lo escrito para reintentar. No se aplica a los botones
+  "Eliminar" (ya tienen su propia confirmación destructiva).
+- ✅ **Dificultad oculta en listado y modo de juego** (fuera de las specs
+  numeradas): la columna `question.difficulty` se sigue guardando y
+  editando en el formulario de creación/edición y mostrando durante la
+  partida, pero ya no aparece como columna en `/questions` ni como filtro
+  en la configuración de `/play`.
+- ✅ **Datos adicionales por episodio** (fuera de las specs numeradas):
+  columna `episode.extraNotes` (texto libre, Markdown simple, nullable),
+  migración `0003_colossal_zeigeist.sql`. Editable desde `/episodes`
+  (`episode-extra-notes.tsx`, botón "+ Añadir datos adicionales" /
+  "Editar datos adicionales" con textarea inline), protegido por la clave
+  de edición. DAL en `lib/dal/episodes.ts` (`updateEpisodeExtraNotes`).
+- ✅ **Datos sobre la serie** (fuera de las specs numeradas): nueva tabla
+  `series_fact` (`id`, `category` enum — premios/actores invitados/carrera
+  paralela/doblaje/ubicaciones/otros —, `title`, `description`,
+  `sortOrder`), misma migración `0003_colossal_zeigeist.sql`. DAL en
+  `lib/dal/series-facts.ts`, validación en `lib/validation/series-fact.ts`,
+  etiquetas en `lib/reference/series-fact-category.ts`. Nueva página
+  `/series-info` ("Más sobre la serie", enlazada desde la navegación): una
+  sección por categoría con sus entradas y un formulario para añadir más;
+  cada entrada se puede editar (protegido por la clave) o eliminar
+  (confirmación, sin clave).
+
+Despliegue previsto en Vercel; configurar `DATABASE_URL` y `EDIT_PASSWORD`
+como variables de entorno del proyecto en Vercel (no versionar `.env.local`).

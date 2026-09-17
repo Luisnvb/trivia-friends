@@ -5,12 +5,14 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { questionInputSchema, type QuestionInput } from "@/lib/validation/question";
 import { createQuestion, updateQuestion, deleteQuestion } from "@/lib/dal/questions";
+import { isValidEditKey, INVALID_EDIT_KEY_MESSAGE } from "@/lib/auth/edit-key";
 
 /**
  * 001-create-question / 003-edit-question / 004-delete-question: Server
  * Actions co-localizadas. Validan con el esquema zod compartido
  * (000-data-model §2 y §4) y delegan en el DAL — ningún componente accede a
- * Drizzle directamente (principio de arquitectura nº6).
+ * Drizzle directamente (principio de arquitectura nº6). Crear y editar
+ * exigen además la clave compartida (ver src/lib/auth/edit-key.ts).
  */
 
 export type ActionErrors = Record<string, string[]>;
@@ -29,8 +31,13 @@ function toErrorMap(error: z.ZodError): ActionErrors {
 }
 
 export async function createQuestionAction(
-  input: QuestionInput
+  input: QuestionInput,
+  key: string
 ): Promise<QuestionActionResult> {
+  if (!isValidEditKey(key)) {
+    return { success: false, errors: { _key: [INVALID_EDIT_KEY_MESSAGE] } };
+  }
+
   const parsed = questionInputSchema.safeParse(input);
   if (!parsed.success) {
     return { success: false, errors: toErrorMap(parsed.error) };
@@ -42,8 +49,13 @@ export async function createQuestionAction(
 
 export async function updateQuestionAction(
   id: number,
-  input: QuestionInput
+  input: QuestionInput,
+  key: string
 ): Promise<QuestionActionResult> {
+  if (!isValidEditKey(key)) {
+    return { success: false, errors: { _key: [INVALID_EDIT_KEY_MESSAGE] } };
+  }
+
   const parsed = questionInputSchema.safeParse(input);
   if (!parsed.success) {
     return { success: false, errors: toErrorMap(parsed.error) };

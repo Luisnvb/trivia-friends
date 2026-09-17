@@ -5,7 +5,6 @@ import { AnswerReveal } from "@/components/answer-reveal";
 import { RestrictedMarkdown } from "@/components/restricted-markdown";
 import { DeleteQuestionButton } from "@/components/delete-question-button";
 import { MIN_SEASON, MAX_SEASON } from "@/lib/reference/episodes";
-import { QUESTION_DIFFICULTY_LABELS } from "@/lib/reference/difficulty";
 
 /**
  * 002-list-questions: Server Component que lee `searchParams` y llama al
@@ -191,7 +190,6 @@ export default async function QuestionsPage({
                     </th>
                   );
                 })}
-                <th className="px-4 py-3">Dificultad</th>
                 <th className="px-4 py-3">Respuesta</th>
                 <th className="px-4 py-3">Acciones</th>
               </tr>
@@ -210,9 +208,6 @@ export default async function QuestionsPage({
                   </td>
                   <td className="px-4 py-3 align-top text-stone-600">
                     {new Date(q.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="px-4 py-3 align-top text-stone-600">
-                    {QUESTION_DIFFICULTY_LABELS[q.difficulty]}
                   </td>
                   <td className="px-4 py-3 align-top">
                     <AnswerReveal options={q.options} />

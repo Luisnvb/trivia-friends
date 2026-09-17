@@ -106,6 +106,11 @@ export const episode = pgTable(
       .$type<MemorableQuote[]>()
       .notNull()
       .default([]),
+    // Datos adicionales de texto libre (curiosidades, notas de producción,
+    // etc.), añadidos manualmente desde /episodes — a diferencia del resto
+    // de campos de esta tabla, no viene del seed inicial. Markdown simple,
+    // igual que question.text.
+    extraNotes: text("extra_notes"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -120,3 +125,37 @@ export const episode = pgTable(
 
 export type Episode = typeof episode.$inferSelect;
 export type NewEpisode = typeof episode.$inferInsert;
+
+/**
+ * Datos sobre la serie que no están ligados a un episodio concreto: premios,
+ * actores invitados, carrera paralela de los protagonistas, actores de
+ * doblaje, ubicaciones y otros detalles de producción (fuera de las specs
+ * numeradas, a petición del usuario, igual que `episode`). Una única tabla
+ * con `category` en vez de una tabla por categoría — todas comparten la
+ * misma forma (título + descripción).
+ */
+export const seriesFactCategoryEnum = pgEnum("series_fact_category", [
+  "award",
+  "guest_actor",
+  "cast_career",
+  "dubbing_actor",
+  "location",
+  "other",
+]);
+
+export const seriesFact = pgTable("series_fact", {
+  id: serial("id").primaryKey(),
+  category: seriesFactCategoryEnum("category").notNull(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export type SeriesFact = typeof seriesFact.$inferSelect;
+export type NewSeriesFact = typeof seriesFact.$inferInsert;
